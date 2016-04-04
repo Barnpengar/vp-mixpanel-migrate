@@ -1,0 +1,19 @@
+{
+  "name": "vp-node-mixpanel-data-exporter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-db": "mongod",
+    "export": "./start-migration.sh",
+    "import": "node import.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonfile": "^2.2.3",
+    "mixpanel": "^0.4.0",
+    "mongodb": "^2.1.14",
+    "node-mixpanel-data-exporter": "0.0.1"
+  }
+}
