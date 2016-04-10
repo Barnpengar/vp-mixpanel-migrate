@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start-db": "mongod",
-    "export": "./start-migration.sh",
+    "export": "./export.sh",
     "import": "node import.js"
   },
   "author": "",

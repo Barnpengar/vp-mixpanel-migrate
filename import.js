@@ -11,12 +11,13 @@ var Mixpanel = require('mixpanel');
 var mixpanel = Mixpanel.init('a3dcff528f32f194f5dda08ea5f665ad');
 
 var sendToMixPanel = function(doc) {
-
-	//Creating Users
 	doc = refit_keys(doc)
 	doc = doc2MixpanelUser(doc)
+
+    //Creating Users
 	mixpanel.people.set(doc["$distinct_id"], doc);
 	console.log("Creating user : " + doc["$distinct_id"])
+    //console.log(doc)
 
 	//Deleting users
 	//mixpanel.people.delete_user(doc["$distinct_id"]);
@@ -29,6 +30,16 @@ var sendToMixPanel = function(doc) {
 
 var doc2MixpanelUser = function(doc) {
 	temp = doc["$properties"]
+
+    if(temp["$ios_devices"] != undefined)
+    {
+        var ios_devices = []
+        Object.keys(temp["$ios_devices"]).forEach(key => {
+            ios_devices.push(temp["$ios_devices"][key])
+        })
+        temp["$ios_devices"] = ios_devices
+    }
+
 	temp["$distinct_id"] = doc["$distinct_id"]
 	return temp
 }	
