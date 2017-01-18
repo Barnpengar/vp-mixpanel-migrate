@@ -165,7 +165,7 @@ function refit_keys(o){
 }
 
 
-
+//after running this: Byta namn på Cities - Södra förstaden -> Malmö, Ringön -> Göteborg
 var uploadDocuments = function(documents, session_id, page) {
 	MongoClient.connect(MONGO_DB_URL, function(err, db) {
 	  assert.equal(null, err);
