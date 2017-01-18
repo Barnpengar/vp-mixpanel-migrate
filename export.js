@@ -16,68 +16,35 @@ var MongoClient = require('mongodb').MongoClient
 var assert = require('assert');
 var MONGO_DB_URL = 'mongodb://localhost:27017/local';
 var fs = require('fs')
-// Use connect method to connect to the Server 
+// Use connect method to connect to the Server
 
 //initialize with required api_key and api_secret
 var Mixpanel_Exporter = require('node-mixpanel-data-exporter')
 mixpanel_exporter = new Mixpanel_Exporter({
-  api_key: 'adf2e5762fba49a0e9908a87c21127f4'
-, api_secret: 'a3dfabf7942edf0ac0747d45f1ea7659'
+  api_key: '95bd86c6dfdd764640fb23d512ea50df'
+, api_secret: '1e65d15d48090928a967b185c2edc320'
 , format: 'json' //optional and will default to json
 })
 
 var args = jsonfile.readFileSync('args.json')
 
-console.log("args")
-console.log(args)
+//console.log("args")
+//console.log(args)
 mixpanel_exporter.fetch('engage', args, function(error, request, body) {
     var json = JSON.parse(body)
     var session_id = json.session_id
     var page = json.page
     var documents = json.results
     documents = cleanDocuments(json.results)
-    uploadDocuments(documents, session_id, page)
+    //uploadDocuments(documents, session_id, page)
+    documents.forEach((item) => logRegionInfoForDocument(item, session_id, page))
 })
 
-/*
-
-    getAnalyticsHuman(human) {
-      if (human.scope === SCOPES.child)
-      {
-        var reportData = {}
-        if(human.transactions && human.transactions.length > 0)
-          reportData = ChildYearReport.getReportDataForTransactions(human.transactions)
-
-        //Child
-        return {
-          age : moment().diff(human.birthDate, "y"),
-          allowanceValue : human.allowance.value / 100,
-          allowanceType : human.rucurring === RECURRING_WEEKLY ? WEEKLY : MONTHLY,
-          birthDate : human.birthDate,
-          email : human.email,
-          name : human.name,
-          pushEnabled : Store.getState().device.registrationId !== undefined,
-          phoneNo : human.phoneNo,
-          savingsAccountBalance : human.savingsAccount ? human.savingsAccount.balance / 100 : 0, //When registering, svings/transactionalaccount is undefined
-          transactionAccountBalance : human.transactionalAccount ? human.transactionalAccount.balance / 100 : 0, //When registering, svings/transactionalaccount is undefined
-          scope : SCOPES.child,
-          ...reportData
-        }
-      }
-
-
-      //is Parent
-      return {
-        email : human.email,
-        name : human.name,
-        phoneNo : human.phoneNo,
-        scope : SCOPES.parent,
-        connectionMade : this.getConnectionMade(human),
-        pushEnabled : Store.getState().device.registrationId !== undefined
-      }
-    }
-
-    */
+var logRegionInfoForDocument = (item, session_id, page) => {
+  if(!!item["#distinct_id"] && !!item["#properties"]["#city"])
+    console.log(`${item["#distinct_id"]},${item["#properties"]["#city"]}, ${item["#properties"]["#region"]}`)
+  jsonfile.writeFileSync("args.json", {session_id : session_id, page : page + 1})
+}
 
 var cleanDocuments = function(documents) {
     documents = documents.map(refit_keys)
@@ -107,14 +74,14 @@ var cleanDocuments = function(documents) {
 
         if(typeof b["#properties"]["birthDate"] !== "string")
             delete b["#properties"]["birthDate"]
-        
+
         if(b["#properties"]["#ios_devices"] == undefined)
             delete b["#properties"]["#ios_devices"]
 
         //console.log(b)
         return a.concat(b)
     },[])
-} 
+}
 
 var mapShortToLong = {
     "$properties": "#properties",
@@ -132,7 +99,23 @@ var mapShortToLong = {
     '$region': '#region',
     '$timezone': '#timezone',
     "$ios_ifa" : "#ios_ifa",
+    "$email" : "#email",
+    "$deliveries" : "#deliveries",
+    "$bounce_category" : "#bounce_category",
+    "$android_app_version" : "#android_app_version",
+    "$android_app_version_code" : "#android_app_version_code",
+    "$android_brand" : "#android_brand",
+    "$unsubscribed" : "#unsubscribed",
+    "$android_lib_version" : "#android_lib_version",
+    "$android_devices" : "#android_devices",
+    "$android_manufacturer" : "#android_manufacturer",
+    "$android_model" : "#android_model",
+    "$bounce_notification" : "#bounce_notification",
+    "$android_os" : "#android_os",
+    "$android_os_version" : "#android_os_version",
+    "$bounced" : "#bounced",
     "email" : "#email",
+    "$campaigns" : "#campaigns",
     "phone_no" : "phoneNo",
     "birth_date" : "birthDate"
 };
